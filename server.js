@@ -1,8 +1,8 @@
 import { ApolloServer, gql } from "apollo-server";
 
 let tweets = [
-  { id: "1", text: "first tweet!" },
-  { id: "2", text: "second tweet!" },
+  { id: "1", text: "first tweet!", author: "1" },
+  { id: "2", text: "second tweet!", author: "2" },
 ];
 
 let users = [
@@ -20,7 +20,7 @@ const typeDefs = gql`
   type Tweet {
     id: ID!
     text: String!
-    author: User
+    author: User!
   }
   type Query {
     allUsers: [User!]!
@@ -28,7 +28,7 @@ const typeDefs = gql`
     tweet(id: ID!): Tweet
   }
   type Mutation {
-    postTweet(text: String!, useId: ID!): Tweet!
+    postTweet(text: String!, userId: ID!): Tweet!
     deleteTweet(id: ID!): Boolean!
   }
 `;
@@ -46,15 +46,16 @@ const resolvers = {
     },
   },
   Mutation: {
-    postTweet(_, { text }) {
+    postTweet(_, { text, userId }) {
       const newTweet = {
         id: tweets.length + 1,
         text,
+        userId,
       };
       tweets.push(newTweet);
       return newTweet;
     },
-    deleteTweet(_, { id }) {
+    deleteTweet({}) {
       const tweet = tweets.find((tweet) => tweet.id === id);
       if (!tweet) return false;
       tweets = tweets.filter((tweet) => tweet.id !== id);
@@ -64,6 +65,11 @@ const resolvers = {
   User: {
     fullName({ firstName, lastName }) {
       return `${firstName} ${lastName}`;
+    },
+  },
+  Tweet: {
+    author({ userId }) {
+      return users.find((user) => user.id === userId);
     },
   },
 };
