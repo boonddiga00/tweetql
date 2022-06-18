@@ -47,6 +47,9 @@ const resolvers = {
   },
   Mutation: {
     postTweet(_, { text, userId }) {
+      if (!users.find((user) => user.id === userId)) {
+        return new Error("You need correct userId");
+      }
       const newTweet = {
         id: tweets.length + 1,
         text,
